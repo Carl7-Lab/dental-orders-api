@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import { PatientsModule } from './patients/patients.module';
+import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { EnvConfiguration } from './config/app.config';
@@ -19,6 +20,7 @@ import { AccessTokenGuard } from './auth/guards/access-token.guard';
     PrismaModule,
     DoctorsModule,
     PatientsModule,
+    OrdersModule,
     AuthModule,
   ],
   providers: [

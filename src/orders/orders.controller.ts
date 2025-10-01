@@ -1,0 +1,114 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
+import { OrdersService } from './orders.service';
+import { CreateOrderDto, UpdateOrderDto } from './dto';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiQuery,
+} from '@nestjs/swagger';
+import { OrderEntity } from './entities/order.entity';
+import { Order } from '@prisma/client';
+
+@Controller('orders')
+@ApiTags('orders')
+@ApiBearerAuth()
+export class OrdersController {
+  constructor(private readonly ordersService: OrdersService) {}
+
+  @Post()
+  @ApiOperation({
+    summary: 'Crear una orden',
+    description: 'Crear una nueva orden para un paciente',
+  })
+  @ApiCreatedResponse({ type: OrderEntity })
+  async create(@Body() dto: CreateOrderDto): Promise<OrderEntity> {
+    return new OrderEntity(await this.ordersService.create(dto));
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Obtener todas las órdenes',
+    description: 'Obtener todas las órdenes con filtros opcionales',
+  })
+  @ApiOkResponse({ type: OrderEntity, isArray: true })
+  @ApiQuery({
+    name: 'doctorId',
+    required: false,
+    description: 'Filtrar por doctor',
+  })
+  @ApiQuery({
+    name: 'patientId',
+    required: false,
+    description: 'Filtrar por paciente',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'Filtrar por estado',
+  })
+  async findAll(
+    @Query('doctorId') doctorId?: string,
+    @Query('patientId') patientId?: string,
+    @Query('status') status?: string,
+  ): Promise<OrderEntity[]> {
+    let orders: Order[];
+
+    if (doctorId) {
+      orders = await this.ordersService.findByDoctor(parseInt(doctorId));
+    } else if (patientId) {
+      orders = await this.ordersService.findByPatient(parseInt(patientId));
+    } else if (status) {
+      orders = await this.ordersService.findByStatus(status);
+    } else {
+      orders = await this.ordersService.findAll();
+    }
+
+    return orders.map((order) => new OrderEntity(order));
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Obtener una orden',
+    description: 'Obtener una orden específica por ID',
+  })
+  @ApiOkResponse({ type: OrderEntity })
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<OrderEntity> {
+    return new OrderEntity(await this.ordersService.findOne(id));
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Actualizar una orden',
+    description: 'Actualizar una orden existente',
+  })
+  @ApiOkResponse({ type: OrderEntity })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateOrderDto,
+  ): Promise<OrderEntity> {
+    return new OrderEntity(await this.ordersService.update(id, dto));
+  }
+
+  @Delete(':id')
+  @ApiOperation({
+    summary: 'Eliminar una orden',
+    description: 'Eliminar una orden existente',
+  })
+  @ApiOkResponse({ type: OrderEntity })
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<OrderEntity> {
+    return new OrderEntity(await this.ordersService.remove(id));
+  }
+}
