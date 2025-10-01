@@ -18,9 +18,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { DoctorEntity } from './entities/doctor.entity';
+import { RoleProtected } from 'src/auth/decorator/role-protected.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('doctors')
 @ApiTags('doctors')
+@RoleProtected(Role.ADMIN)
 @ApiBearerAuth()
 export class DoctorsController {
   constructor(private readonly doctorsService: DoctorsService) {}
