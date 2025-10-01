@@ -37,12 +37,6 @@ export class DoctorsService {
     return doctor;
   }
 
-  async findByEmail(email: string): Promise<Doctor | null> {
-    return await this.prisma.doctor.findUnique({
-      where: { email },
-    });
-  }
-
   async update(id: number, dto: UpdateDoctorDto): Promise<Doctor> {
     await this.findOne(id);
 
