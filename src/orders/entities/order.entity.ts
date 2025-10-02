@@ -28,6 +28,12 @@ export class OrderEntity implements Order {
   status: OrderStatus;
 
   @ApiProperty({
+    description: 'La fecha de la orden',
+    example: new Date(),
+  })
+  orderDate: Date;
+
+  @ApiProperty({
     description: 'El ID del doctor',
     example: 1,
   })

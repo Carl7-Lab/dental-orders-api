@@ -67,6 +67,7 @@ model Order {
   id        Int         @id @default(autoincrement())
   orderType OrderType
   status    OrderStatus @default(PENDING)
+  orderDate DateTime
 
   // Relaciones
   doctor    Doctor  @relation(fields: [doctorId], references: [id])
