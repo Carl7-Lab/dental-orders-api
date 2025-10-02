@@ -9,7 +9,7 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
-import { OrdersService, OrderWithRelations } from './orders.service';
+import { OrdersService, PaginatedOrders } from './orders.service';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import {
   ApiBearerAuth,
@@ -40,7 +40,8 @@ export class OrdersController {
   @Get()
   @ApiOperation({
     summary: 'Obtener todas las órdenes',
-    description: 'Obtener todas las órdenes con filtros opcionales',
+    description:
+      'Obtener todas las órdenes con filtros opcionales y paginación',
   })
   @ApiOkResponse({ type: OrderEntity, isArray: true })
   @ApiQuery({
@@ -58,24 +59,56 @@ export class OrdersController {
     required: false,
     description: 'Filtrar por estado',
   })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Número de página (por defecto: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Número de elementos por página (por defecto: 10)',
+  })
   async findAll(
     @Query('doctorId') doctorId?: string,
     @Query('patientId') patientId?: string,
     @Query('status') status?: string,
-  ): Promise<OrderEntity[]> {
-    let orders: OrderWithRelations[];
+    @Query('page', ParseIntPipe) page?: number,
+    @Query('limit', ParseIntPipe) limit?: number,
+  ): Promise<{
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+    data: OrderEntity[];
+  }> {
+    let result: PaginatedOrders;
 
     if (doctorId) {
-      orders = await this.ordersService.findByDoctor(parseInt(doctorId));
+      result = await this.ordersService.findByDoctor(parseInt(doctorId), {
+        page,
+        limit,
+      });
     } else if (patientId) {
-      orders = await this.ordersService.findByPatient(parseInt(patientId));
+      result = await this.ordersService.findByPatient(parseInt(patientId), {
+        page,
+        limit,
+      });
     } else if (status) {
-      orders = await this.ordersService.findByStatus(status);
+      result = await this.ordersService.findByStatus(status, {
+        page,
+        limit,
+      });
     } else {
-      orders = await this.ordersService.findAll();
+      result = await this.ordersService.findAll({ page, limit });
     }
 
-    return orders.map((order) => new OrderEntity(order));
+    return {
+      pagination: result.pagination,
+      data: result.data.map((order) => new OrderEntity(order)),
+    };
   }
 
   @Get(':id')

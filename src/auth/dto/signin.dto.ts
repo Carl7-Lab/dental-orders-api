@@ -6,7 +6,7 @@ export class SigninDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'El email del doctor',
-    example: 'juan.perez@example.com',
+    example: 'admin@dental.com',
   })
   email: string;
 

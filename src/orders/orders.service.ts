@@ -2,10 +2,22 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Order, Doctor, Patient } from '@prisma/client';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { getPaginationParams, getTotalPages } from 'src/common/utils';
 
 export type OrderWithRelations = Order & {
   doctor: Omit<Doctor, 'createdAt' | 'updatedAt' | 'isActive' | 'password'>;
   patient: Omit<Patient, 'createdAt' | 'updatedAt'>;
+};
+
+export type PaginatedOrders = {
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  data: OrderWithRelations[];
 };
 
 @Injectable()
@@ -64,11 +76,30 @@ export class OrdersService {
     });
   }
 
-  async findAll(): Promise<OrderWithRelations[]> {
-    return await this.prisma.order.findMany({
-      include: this.getIncludeOptions(),
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(pagination: PaginationDto = {}): Promise<PaginatedOrders> {
+    const { page, limit, skip } = getPaginationParams(pagination);
+
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany({
+        include: this.getIncludeOptions(),
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.order.count(),
+    ]);
+
+    const totalPages = getTotalPages(total, limit);
+
+    return {
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+      data,
+    };
   }
 
   async findOne(id: number): Promise<OrderWithRelations> {
@@ -84,30 +115,98 @@ export class OrdersService {
     return order;
   }
 
-  async findByDoctor(doctorId: number): Promise<OrderWithRelations[]> {
-    return await this.prisma.order.findMany({
-      where: { doctorId },
-      include: this.getIncludeOptions(),
-      orderBy: { createdAt: 'desc' },
-    });
-  }
+  async findByDoctor(
+    doctorId: number,
+    pagination: PaginationDto = {},
+  ): Promise<PaginatedOrders> {
+    const { page, limit, skip } = getPaginationParams(pagination);
 
-  async findByPatient(patientId: number): Promise<OrderWithRelations[]> {
-    return await this.prisma.order.findMany({
-      where: { patientId },
-      include: this.getIncludeOptions(),
-      orderBy: { createdAt: 'desc' },
-    });
-  }
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where: { doctorId },
+        include: this.getIncludeOptions(),
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.order.count({ where: { doctorId } }),
+    ]);
 
-  async findByStatus(status: string): Promise<OrderWithRelations[]> {
-    return await this.prisma.order.findMany({
-      where: {
-        status: status as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED',
+    const totalPages = getTotalPages(total, limit);
+
+    return {
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
       },
-      include: this.getIncludeOptions(),
-      orderBy: { createdAt: 'desc' },
-    });
+      data,
+    };
+  }
+
+  async findByPatient(
+    patientId: number,
+    pagination: PaginationDto = {},
+  ): Promise<PaginatedOrders> {
+    const { page, limit, skip } = getPaginationParams(pagination);
+
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where: { patientId },
+        include: this.getIncludeOptions(),
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.order.count({ where: { patientId } }),
+    ]);
+
+    const totalPages = getTotalPages(total, limit);
+
+    return {
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+      data,
+    };
+  }
+
+  async findByStatus(
+    status: string,
+    pagination: PaginationDto = {},
+  ): Promise<PaginatedOrders> {
+    const { page, limit, skip } = getPaginationParams(pagination);
+
+    const whereClause = {
+      status: status as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED',
+    };
+
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where: whereClause,
+        include: this.getIncludeOptions(),
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.order.count({ where: whereClause }),
+    ]);
+
+    const totalPages = getTotalPages(total, limit);
+
+    return {
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+      data,
+    };
   }
 
   async update(id: number, dto: UpdateOrderDto): Promise<OrderWithRelations> {
