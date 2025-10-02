@@ -43,7 +43,7 @@ export class OrderEntity implements Order {
     description: 'Información del doctor',
     type: Object,
   })
-  doctor?: Omit<Doctor, 'createdAt' | 'updatedAt'>;
+  doctor?: Omit<Doctor, 'createdAt' | 'updatedAt' | 'isActive' | 'password'>;
 
   @ApiProperty({
     description: 'Información del paciente',

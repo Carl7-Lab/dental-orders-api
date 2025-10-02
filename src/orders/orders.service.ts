@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Order, Doctor, Patient } from '@prisma/client';
 
 export type OrderWithRelations = Order & {
-  doctor: Omit<Doctor, 'createdAt' | 'updatedAt'>;
+  doctor: Omit<Doctor, 'createdAt' | 'updatedAt' | 'isActive' | 'password'>;
   patient: Omit<Patient, 'createdAt' | 'updatedAt'>;
 };
 
@@ -12,18 +12,19 @@ export type OrderWithRelations = Order & {
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   private getIncludeOptions() {
     return {
+      doctorId: false,
+      patientId: false,
       doctor: {
         select: {
           id: true,
           name: true,
           email: true,
-          password: true,
           phone: true,
           address: true,
           role: true,
-          isActive: true,
         },
       },
       patient: {
