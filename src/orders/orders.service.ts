@@ -1,14 +1,45 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Order } from '@prisma/client';
+import { Order, Doctor, Patient } from '@prisma/client';
+
+export type OrderWithRelations = Order & {
+  doctor: Omit<Doctor, 'createdAt' | 'updatedAt'>;
+  patient: Omit<Patient, 'createdAt' | 'updatedAt'>;
+};
 
 @Injectable()
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private getIncludeOptions() {
+    return {
+      doctor: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          password: true,
+          phone: true,
+          address: true,
+          role: true,
+          isActive: true,
+        },
+      },
+      patient: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          address: true,
+          notes: true,
+        },
+      },
+    } as const;
+  }
+
   async create(dto: CreateOrderDto): Promise<Order> {
-    // Verificar que el doctor existe
     const doctor = await this.prisma.doctor.findUnique({
       where: { id: dto.doctorId },
     });
@@ -18,7 +49,6 @@ export class OrdersService {
       );
     }
 
-    // Verificar que el paciente existe
     const patient = await this.prisma.patient.findUnique({
       where: { id: dto.patientId },
     });
@@ -33,15 +63,17 @@ export class OrdersService {
     });
   }
 
-  async findAll(): Promise<Order[]> {
+  async findAll(): Promise<OrderWithRelations[]> {
     return await this.prisma.order.findMany({
+      include: this.getIncludeOptions(),
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async findOne(id: number): Promise<Order> {
+  async findOne(id: number): Promise<OrderWithRelations> {
     const order = await this.prisma.order.findUnique({
       where: { id },
+      include: this.getIncludeOptions(),
     });
 
     if (!order) {
@@ -51,31 +83,35 @@ export class OrdersService {
     return order;
   }
 
-  async findByDoctor(doctorId: number): Promise<Order[]> {
+  async findByDoctor(doctorId: number): Promise<OrderWithRelations[]> {
     return await this.prisma.order.findMany({
       where: { doctorId },
+      include: this.getIncludeOptions(),
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async findByPatient(patientId: number): Promise<Order[]> {
+  async findByPatient(patientId: number): Promise<OrderWithRelations[]> {
     return await this.prisma.order.findMany({
       where: { patientId },
+      include: this.getIncludeOptions(),
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async findByStatus(status: string): Promise<Order[]> {
+  async findByStatus(status: string): Promise<OrderWithRelations[]> {
     return await this.prisma.order.findMany({
-      where: { status: status as any },
+      where: {
+        status: status as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED',
+      },
+      include: this.getIncludeOptions(),
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async update(id: number, dto: UpdateOrderDto): Promise<Order> {
+  async update(id: number, dto: UpdateOrderDto): Promise<OrderWithRelations> {
     await this.findOne(id);
 
-    // Si se está actualizando el doctor, verificar que existe
     if (dto.doctorId) {
       const doctor = await this.prisma.doctor.findUnique({
         where: { id: dto.doctorId },
@@ -87,7 +123,6 @@ export class OrdersService {
       }
     }
 
-    // Si se está actualizando el paciente, verificar que existe
     if (dto.patientId) {
       const patient = await this.prisma.patient.findUnique({
         where: { id: dto.patientId },
@@ -102,14 +137,16 @@ export class OrdersService {
     return await this.prisma.order.update({
       where: { id },
       data: dto,
+      include: this.getIncludeOptions(),
     });
   }
 
-  async remove(id: number): Promise<Order> {
+  async remove(id: number): Promise<OrderWithRelations> {
     await this.findOne(id);
 
     return await this.prisma.order.delete({
       where: { id },
+      include: this.getIncludeOptions(),
     });
   }
 }

@@ -9,7 +9,7 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
-import { OrdersService } from './orders.service';
+import { OrdersService, OrderWithRelations } from './orders.service';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import {
   ApiBearerAuth,
@@ -20,7 +20,6 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { OrderEntity } from './entities/order.entity';
-import { Order } from '@prisma/client';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -64,7 +63,7 @@ export class OrdersController {
     @Query('patientId') patientId?: string,
     @Query('status') status?: string,
   ): Promise<OrderEntity[]> {
-    let orders: Order[];
+    let orders: OrderWithRelations[];
 
     if (doctorId) {
       orders = await this.ordersService.findByDoctor(parseInt(doctorId));
