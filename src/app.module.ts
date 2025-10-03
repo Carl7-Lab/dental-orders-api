@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
-import { DoctorsModule } from './doctors/doctors.module';
+import { UsersModule } from './users/users.module';
 import { PatientsModule } from './patients/patients.module';
 import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
@@ -18,7 +18,7 @@ import { AccessTokenGuard } from './auth/guards/access-token.guard';
       isGlobal: true,
     }),
     PrismaModule,
-    DoctorsModule,
+    UsersModule,
     PatientsModule,
     OrdersModule,
     AuthModule,

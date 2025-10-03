@@ -1,3 +1,3 @@
 export interface AuthPayload {
-  doctorId: number;
+  userId: number;
 }

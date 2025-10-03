@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Order, OrderType, OrderStatus, Doctor, Patient } from '@prisma/client';
+import { Order, OrderType, OrderStatus, User, Patient } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
 export class OrderEntity implements Order {
@@ -34,10 +34,10 @@ export class OrderEntity implements Order {
   orderDate: Date;
 
   @ApiProperty({
-    description: 'El ID del doctor',
+    description: 'El ID del usuario',
     example: 1,
   })
-  doctorId: number;
+  userId: number;
 
   @ApiProperty({
     description: 'El ID del paciente',
@@ -46,10 +46,10 @@ export class OrderEntity implements Order {
   patientId: number;
 
   @ApiProperty({
-    description: 'Información del doctor',
+    description: 'Información del usuario',
     type: Object,
   })
-  doctor?: Omit<Doctor, 'createdAt' | 'updatedAt' | 'isActive' | 'password'>;
+  user?: Omit<User, 'createdAt' | 'updatedAt' | 'isActive' | 'password'>;
 
   @ApiProperty({
     description: 'Información del paciente',

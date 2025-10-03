@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { DoctorsModule } from 'src/doctors/doctors.module';
+import { UsersModule } from 'src/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AccessTokenStrategy, RefreshTokenStrategy } from './strategies';
 import { CommonModule } from 'src/common/common.module';
@@ -21,7 +21,7 @@ import { CommonModule } from 'src/common/common.module';
         },
       }),
     }),
-    DoctorsModule,
+    UsersModule,
     CommonModule,
   ],
   controllers: [AuthController],

@@ -1,59 +1,59 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateDoctorDto, UpdateDoctorDto } from './dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Doctor } from '@prisma/client';
+import { User } from '@prisma/client';
 import { HashAdapter } from 'src/common/adapters/hash.adapter';
 
 @Injectable()
-export class DoctorsService {
+export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly hash: HashAdapter,
   ) {}
 
-  async create(dto: CreateDoctorDto): Promise<Doctor> {
+  async create(dto: CreateUserDto): Promise<User> {
     dto.password = await this.hash.hashData(dto.password);
 
-    return await this.prisma.doctor.create({
+    return await this.prisma.user.create({
       data: dto,
     });
   }
 
-  async findAll(): Promise<Doctor[]> {
-    return await this.prisma.doctor.findMany({
+  async findAll(): Promise<User[]> {
+    return await this.prisma.user.findMany({
       where: { isActive: true },
     });
   }
 
-  async findOne(id: number): Promise<Doctor> {
-    const doctor = await this.prisma.doctor.findUnique({
+  async findOne(id: number): Promise<User> {
+    const user = await this.prisma.user.findUnique({
       where: { id },
     });
 
-    if (!doctor) {
-      throw new NotFoundException(`Doctor con id "${id}" no encontrado`);
+    if (!user) {
+      throw new NotFoundException(`Usuario con id "${id}" no encontrado`);
     }
 
-    return doctor;
+    return user;
   }
 
-  async update(id: number, dto: UpdateDoctorDto): Promise<Doctor> {
+  async update(id: number, dto: UpdateUserDto): Promise<User> {
     await this.findOne(id);
 
     if (dto.password) {
       dto.password = await this.hash.hashData(dto.password);
     }
 
-    return await this.prisma.doctor.update({
+    return await this.prisma.user.update({
       where: { id },
       data: dto,
     });
   }
 
-  async remove(id: number): Promise<Doctor> {
+  async remove(id: number): Promise<User> {
     await this.findOne(id);
 
-    return await this.prisma.doctor.update({
+    return await this.prisma.user.update({
       where: { id },
       data: { isActive: false },
     });

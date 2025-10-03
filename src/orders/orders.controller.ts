@@ -20,6 +20,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { OrderEntity } from './entities/order.entity';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -45,9 +46,9 @@ export class OrdersController {
   })
   @ApiOkResponse({ type: OrderEntity, isArray: true })
   @ApiQuery({
-    name: 'doctorId',
+    name: 'userId',
     required: false,
-    description: 'Filtrar por doctor',
+    description: 'Filtrar por usuario',
   })
   @ApiQuery({
     name: 'patientId',
@@ -70,11 +71,10 @@ export class OrdersController {
     description: 'Número de elementos por página (por defecto: 10)',
   })
   async findAll(
-    @Query('doctorId') doctorId?: string,
+    @Query() paginationDto: PaginationDto,
+    @Query('userId') userId?: string,
     @Query('patientId') patientId?: string,
     @Query('status') status?: string,
-    @Query('page', ParseIntPipe) page?: number,
-    @Query('limit', ParseIntPipe) limit?: number,
   ): Promise<{
     pagination: {
       total: number;
@@ -86,23 +86,20 @@ export class OrdersController {
   }> {
     let result: PaginatedOrders;
 
-    if (doctorId) {
-      result = await this.ordersService.findByDoctor(parseInt(doctorId), {
-        page,
-        limit,
-      });
+    if (userId) {
+      result = await this.ordersService.findByUser(
+        parseInt(userId),
+        paginationDto,
+      );
     } else if (patientId) {
-      result = await this.ordersService.findByPatient(parseInt(patientId), {
-        page,
-        limit,
-      });
+      result = await this.ordersService.findByPatient(
+        parseInt(patientId),
+        paginationDto,
+      );
     } else if (status) {
-      result = await this.ordersService.findByStatus(status, {
-        page,
-        limit,
-      });
+      result = await this.ordersService.findByStatus(status, paginationDto);
     } else {
-      result = await this.ordersService.findAll({ page, limit });
+      result = await this.ordersService.findAll(paginationDto);
     }
 
     return {

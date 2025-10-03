@@ -8,7 +8,7 @@ async function main(): Promise<void> {
 
   const hashedPassword = await argon.hash('password123');
 
-  const admin = await prisma.doctor.upsert({
+  const admin = await prisma.user.upsert({
     where: { email: 'admin@dental.com' },
     update: {},
     create: {
@@ -29,7 +29,7 @@ async function main(): Promise<void> {
     role: admin.role,
   });
 
-  const doctor = await prisma.doctor.upsert({
+  const doctor = await prisma.user.upsert({
     where: { email: 'doctor@dental.com' },
     update: {},
     create: {

@@ -51,7 +51,7 @@ Once the server is running, you can access the following endpoints:
 - `POST /api/orders` - Crear nueva orden
 - `PATCH /api/orders/:id` - Actualizar orden
 - `DELETE /api/orders/:id` - Eliminar orden
-- `GET /api/orders/doctor/:doctorId` - Obtener órdenes de un doctor específico
+- `GET /api/orders?userId=:id` - Obtener órdenes de un usuario específico
 - `GET /api/orders/patient/:patientId` - Obtener órdenes de un paciente específico
 
 ### Documentation
@@ -72,12 +72,12 @@ src/
 │   ├── auth.controller.ts
 │   ├── auth.module.ts
 │   └── auth.service.ts
-├── doctors/              # Doctors module (Odontólogos)
+├── users/                # Users module (Usuarios/Doctores)
 │   ├── dto/              # Data Transfer Objects
 │   ├── entities/          # Entities
-│   ├── doctors.controller.ts
-│   ├── doctors.module.ts
-│   └── doctors.service.ts
+│   ├── users.controller.ts
+│   ├── users.module.ts
+│   └── users.service.ts
 ├── patients/             # Patients module (Clientes/Pacientes)
 │   ├── dto/              # Data Transfer Objects
 │   ├── entities/          # Entities

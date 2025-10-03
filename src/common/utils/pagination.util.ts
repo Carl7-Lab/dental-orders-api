@@ -7,7 +7,10 @@ export interface PaginationParams {
 }
 
 export function getPaginationParams(
-  pagination: PaginationDto = {},
+  pagination: PaginationDto = {
+    page: 1,
+    limit: 10,
+  },
 ): PaginationParams {
   const page = Number(pagination.page) || 1;
   const limit = Number(pagination.limit) || 10;

@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthEntity } from './entities/auth.entity';
 import { SigninDto } from './dto/signin.dto';
-import { CreateDoctorDto } from 'src/doctors/dto';
+import { CreateUserDto } from 'src/users/dto';
 import { Tokens } from './interfaces';
 import {
   GetCurrentUser,
@@ -34,10 +34,10 @@ export class AuthController {
   @Post('local/signup')
   @ApiOperation({
     summary: 'Registro local',
-    description: 'Registro local de un doctor para iniciar sesión',
+    description: 'Registro local de un usuario para iniciar sesión',
   })
   @ApiCreatedResponse({ type: AuthEntity })
-  async signupLocal(@Body() dto: CreateDoctorDto): Promise<Tokens> {
+  async signupLocal(@Body() dto: CreateUserDto): Promise<Tokens> {
     return await this.authService.signupLocal(dto);
   }
 
@@ -46,7 +46,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Inicio de sesión local',
-    description: 'Inicio de sesión local de un doctor',
+    description: 'Inicio de sesión local de un usuario',
   })
   @ApiOkResponse({ type: AuthEntity })
   signinLocal(@Body() dto: SigninDto): Promise<AuthEntity> {
@@ -60,13 +60,13 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Refresco de tokens',
-    description: 'Refresco de tokens de un doctor',
+    description: 'Refresco de tokens de un usuario',
   })
   @ApiOkResponse({ type: AuthEntity })
   refreshTokens(
-    @GetCurrentUserId() doctorId: number,
+    @GetCurrentUserId() userId: number,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ): Promise<Tokens> {
-    return this.authService.refreshTokens(doctorId, refreshToken);
+    return this.authService.refreshTokens(userId, refreshToken);
   }
 }

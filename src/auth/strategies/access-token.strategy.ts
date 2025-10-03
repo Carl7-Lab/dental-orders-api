@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayload } from '../interfaces';
-import { DoctorsService } from 'src/doctors/doctors.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(
@@ -12,7 +12,7 @@ export class AccessTokenStrategy extends PassportStrategy(
 ) {
   constructor(
     configService: ConfigService,
-    private readonly doctorsService: DoctorsService,
+    private readonly usersService: UsersService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -21,9 +21,9 @@ export class AccessTokenStrategy extends PassportStrategy(
   }
 
   async validate(payload: JwtPayload): Promise<JwtPayload> {
-    const doctor = await this.doctorsService.findOne(payload.sub);
+    const user = await this.usersService.findOne(payload.sub);
 
-    if (!doctor || !doctor.isActive) {
+    if (!user || !user.isActive) {
       throw new UnauthorizedException('Acceso denegado');
     }
 

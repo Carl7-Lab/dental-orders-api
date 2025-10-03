@@ -12,13 +12,13 @@ import {
 } from 'class-validator';
 import { Role } from '@prisma/client';
 
-export class CreateDoctorDto {
+export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
   @MaxLength(100)
   @ApiProperty({
-    description: 'Nombre del doctor',
+    description: 'Nombre del usuario',
     example: 'Dr. Juan Pérez',
   })
   name: string;
@@ -28,8 +28,8 @@ export class CreateDoctorDto {
   @IsEmail()
   @MaxLength(100)
   @ApiProperty({
-    description: 'El email del doctor',
-    example: 'juan.perez@example.com',
+    description: 'El email del usuario',
+    example: 'admin@dental.com',
   })
   email: string;
 
@@ -38,7 +38,7 @@ export class CreateDoctorDto {
   @MinLength(6)
   @MaxLength(16)
   @ApiProperty({
-    description: 'La contraseña del doctor',
+    description: 'La contraseña del usuario',
     example: 'password123',
   })
   password: string;
@@ -47,7 +47,7 @@ export class CreateDoctorDto {
   @IsOptional()
   @Length(10, 10)
   @ApiProperty({
-    description: 'El número de teléfono del doctor (10 dígitos)',
+    description: 'El número de teléfono del usuario (10 dígitos)',
     example: '0991234567',
     required: false,
   })
@@ -57,7 +57,7 @@ export class CreateDoctorDto {
   @IsOptional()
   @MaxLength(100)
   @ApiProperty({
-    description: 'La dirección del doctor',
+    description: 'La dirección del usuario',
     example: 'Calle 123, Ciudad, País',
   })
   address?: string;
@@ -65,9 +65,9 @@ export class CreateDoctorDto {
   @IsEnum(Role)
   @IsOptional()
   @ApiProperty({
-    description: 'El rol del doctor',
+    description: 'El rol del usuario',
     enum: Role,
-    default: Role.DOCTOR,
+    default: Role.ADMIN,
     required: false,
   })
   role?: Role;

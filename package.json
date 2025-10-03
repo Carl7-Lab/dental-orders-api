@@ -15,10 +15,10 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "prisma:format": "prisma format",
     "prisma:reset": "prisma migrate reset --force",
-    "seed:doctors": "ts-node prisma/seeds/doctors.seed.ts",
+    "seed:users": "ts-node prisma/seeds/users.seed.ts",
     "seed:patients": "ts-node prisma/seeds/patients.seed.ts",
     "seed:orders": "ts-node prisma/seeds/orders.seed.ts",
-    "seed:all": "npm run seed:doctors && npm run seed:patients && npm run seed:orders",
+    "seed:all": "npm run seed:users && npm run seed:patients && npm run seed:orders",
     "db:migrate": "prisma migrate dev",
     "db:up": "docker compose up db -d"
   },

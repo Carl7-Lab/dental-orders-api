@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Order, Doctor, Patient } from '@prisma/client';
+import { Order, User, Patient } from '@prisma/client';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { getPaginationParams, getTotalPages } from 'src/common/utils';
 
 export type OrderWithRelations = Order & {
-  doctor: Omit<Doctor, 'createdAt' | 'updatedAt' | 'isActive' | 'password'>;
+  user: Omit<User, 'createdAt' | 'updatedAt' | 'isActive' | 'password'>;
   patient: Omit<Patient, 'createdAt' | 'updatedAt'>;
 };
 
@@ -27,9 +27,9 @@ export class OrdersService {
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   private getIncludeOptions() {
     return {
-      doctorId: false,
+      userId: false,
       patientId: false,
-      doctor: {
+      user: {
         select: {
           id: true,
           name: true,
@@ -53,12 +53,12 @@ export class OrdersService {
   }
 
   async create(dto: CreateOrderDto): Promise<Order> {
-    const doctor = await this.prisma.doctor.findUnique({
-      where: { id: dto.doctorId },
+    const user = await this.prisma.user.findUnique({
+      where: { id: dto.userId },
     });
-    if (!doctor) {
+    if (!user) {
       throw new NotFoundException(
-        `Doctor con id "${dto.doctorId}" no encontrado`,
+        `Usuario con id "${dto.userId}" no encontrado`,
       );
     }
 
@@ -76,7 +76,7 @@ export class OrdersService {
     });
   }
 
-  async findAll(pagination: PaginationDto = {}): Promise<PaginatedOrders> {
+  async findAll(pagination: PaginationDto): Promise<PaginatedOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
 
     const [data, total] = await Promise.all([
@@ -115,21 +115,21 @@ export class OrdersService {
     return order;
   }
 
-  async findByDoctor(
-    doctorId: number,
-    pagination: PaginationDto = {},
+  async findByUser(
+    userId: number,
+    pagination: PaginationDto,
   ): Promise<PaginatedOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
 
     const [data, total] = await Promise.all([
       this.prisma.order.findMany({
-        where: { doctorId },
+        where: { userId },
         include: this.getIncludeOptions(),
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      this.prisma.order.count({ where: { doctorId } }),
+      this.prisma.order.count({ where: { userId } }),
     ]);
 
     const totalPages = getTotalPages(total, limit);
@@ -147,7 +147,7 @@ export class OrdersService {
 
   async findByPatient(
     patientId: number,
-    pagination: PaginationDto = {},
+    pagination: PaginationDto,
   ): Promise<PaginatedOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
 
@@ -177,7 +177,7 @@ export class OrdersService {
 
   async findByStatus(
     status: string,
-    pagination: PaginationDto = {},
+    pagination: PaginationDto,
   ): Promise<PaginatedOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
 
@@ -212,13 +212,13 @@ export class OrdersService {
   async update(id: number, dto: UpdateOrderDto): Promise<OrderWithRelations> {
     await this.findOne(id);
 
-    if (dto.doctorId) {
-      const doctor = await this.prisma.doctor.findUnique({
-        where: { id: dto.doctorId },
+    if (dto.userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: dto.userId },
       });
-      if (!doctor) {
+      if (!user) {
         throw new NotFoundException(
-          `Doctor con id "${dto.doctorId}" no encontrado`,
+          `Usuario con id "${dto.userId}" no encontrado`,
         );
       }
     }

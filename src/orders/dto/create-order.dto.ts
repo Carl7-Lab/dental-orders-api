@@ -39,10 +39,10 @@ export class CreateOrderDto {
   @IsNumber()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'El ID del doctor que crea la orden',
+    description: 'El ID del usuario que crea la orden',
     example: 1,
   })
-  doctorId: number;
+  userId: number;
 
   @IsNumber()
   @IsNotEmpty()

@@ -5,12 +5,12 @@ const prisma = new PrismaClient();
 async function main(): Promise<void> {
   console.log('📋 Iniciando semilla de órdenes...');
 
-  const doctors = await prisma.doctor.findMany();
+  const users = await prisma.user.findMany();
   const patients = await prisma.patient.findMany();
 
-  if (doctors.length === 0) {
+  if (users.length === 0) {
     console.error(
-      '❌ No hay doctores en la base de datos. Ejecuta primero: npm run seed:doctors',
+      '❌ No hay usuarios en la base de datos. Ejecuta primero: npm run seed:doctors',
     );
     process.exit(1);
   }
@@ -22,7 +22,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  console.log(`👨‍⚕️ Doctores disponibles: ${doctors.length}`);
+  console.log(`👨‍⚕️ Usuarios disponibles: ${users.length}`);
   console.log(`🏥 Pacientes disponibles: ${patients.length}`);
 
   const getRandomDate = (): Date => {
@@ -39,210 +39,210 @@ async function main(): Promise<void> {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.COMPLETED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.PENDING,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.IN_PROGRESS,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.COMPLETED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.CANCELLED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.PENDING,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.COMPLETED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.IN_PROGRESS,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.PENDING,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.COMPLETED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.IN_PROGRESS,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.PENDING,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.COMPLETED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.CANCELLED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.PENDING,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.COMPLETED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.IN_PROGRESS,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.PENDING,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.COMPLETED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.IN_PROGRESS,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.PENDING,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.COMPLETED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.CANCELLED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.PENDING,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.COMPLETED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.IN_PROGRESS,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.PENDING,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.COMPLETED,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.RADIOGRAPHY,
       status: OrderStatus.IN_PROGRESS,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
     {
       orderType: OrderType.LABORATORY,
       status: OrderStatus.PENDING,
       orderDate: getRandomDate(),
-      doctorId: doctors[Math.floor(Math.random() * doctors.length)].id,
+      userId: users[Math.floor(Math.random() * users.length)].id,
       patientId: patients[Math.floor(Math.random() * patients.length)].id,
     },
   ];

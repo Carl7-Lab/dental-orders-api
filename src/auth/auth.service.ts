@@ -5,8 +5,8 @@ import * as argon from 'argon2';
 import { SigninDto } from './dto/signin.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, Tokens } from './interfaces';
-import { DoctorsService } from 'src/doctors/doctors.service';
-import { CreateDoctorDto } from 'src/doctors/dto';
+import { UsersService } from 'src/users/users.service';
+import { CreateUserDto } from 'src/users/dto';
 
 @Injectable()
 export class AuthService {
@@ -14,33 +14,35 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly doctorsService: DoctorsService,
+    private readonly usersService: UsersService,
   ) {}
 
-  async signupLocal(dto: CreateDoctorDto): Promise<Tokens> {
-    const doctor = await this.doctorsService.create(dto);
+  async signupLocal(dto: CreateUserDto): Promise<Tokens> {
+    const user = await this.usersService.create(dto);
 
     const tokens = await this.getTokens({
-      sub: doctor.id,
-      name: doctor.name,
-      email: doctor.email,
-      phone: doctor.phone as string,
-      address: doctor.address as string,
-      role: doctor.role,
+      sub: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone as string,
+      address: user.address as string,
+      role: user.role,
     });
     return tokens;
   }
 
   async signinLocal(dto: SigninDto): Promise<Tokens> {
-    const doctor = await this.prisma.doctor.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
-    if (!doctor) {
-      throw new ForbiddenException('Acceso denegado, no se encontró el doctor');
+    if (!user) {
+      throw new ForbiddenException(
+        'Acceso denegado, no se encontró el usuario',
+      );
     }
 
-    const isPasswordValid = await argon.verify(doctor.password, dto.password);
+    const isPasswordValid = await argon.verify(user.password, dto.password);
 
     if (!isPasswordValid) {
       throw new ForbiddenException(
@@ -49,12 +51,12 @@ export class AuthService {
     }
 
     const tokens = await this.getTokens({
-      sub: doctor.id,
-      name: doctor.name,
-      email: doctor.email,
-      phone: doctor.phone as string,
-      address: doctor.address as string,
-      role: doctor.role,
+      sub: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone as string,
+      address: user.address as string,
+      role: user.role,
     });
     return tokens;
   }
@@ -86,25 +88,22 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(
-    doctorId: number,
-    _refreshToken: string,
-  ): Promise<Tokens> {
-    const doctor = await this.prisma.doctor.findUnique({
-      where: { id: doctorId },
+  async refreshTokens(userId: number, _refreshToken: string): Promise<Tokens> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
     });
 
-    if (!doctor) {
+    if (!user) {
       throw new ForbiddenException('Acceso denegado');
     }
 
     const tokens = await this.getTokens({
-      sub: doctor.id,
-      name: doctor.name,
-      email: doctor.email,
-      phone: doctor.phone as string,
-      address: doctor.address as string,
-      role: doctor.role,
+      sub: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone as string,
+      address: user.address as string,
+      role: user.role,
     });
     return tokens;
   }
