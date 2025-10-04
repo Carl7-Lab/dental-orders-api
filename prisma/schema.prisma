@@ -18,6 +18,7 @@ datasource db {
 enum Role {
   DOCTOR
   ADMIN
+  INTERN
 }
 
 enum OrderType {

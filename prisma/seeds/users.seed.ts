@@ -50,6 +50,27 @@ async function main(): Promise<void> {
     role: doctor.role,
   });
 
+  const intern = await prisma.user.upsert({
+    where: { email: 'intern@dental.com' },
+    update: {},
+    create: {
+      name: 'María García',
+      email: 'intern@dental.com',
+      password: hashedPassword,
+      phone: '+1122334455',
+      address: 'Calle Estudiantes 789, Ciudad',
+      role: Role.INTERN,
+      isActive: true,
+    },
+  });
+
+  console.log('✅ Usuario INTERN creado:', {
+    id: intern.id,
+    name: intern.name,
+    email: intern.email,
+    role: intern.role,
+  });
+
   console.log('🎉 Semillas completadas exitosamente!');
   console.log('');
   console.log('📋 Credenciales de acceso:');
@@ -59,6 +80,10 @@ async function main(): Promise<void> {
   console.log('');
   console.log('DOCTOR:');
   console.log('  Email: doctor@dental.com');
+  console.log('  Password: password123');
+  console.log('');
+  console.log('INTERN:');
+  console.log('  Email: intern@dental.com');
   console.log('  Password: password123');
 }
 

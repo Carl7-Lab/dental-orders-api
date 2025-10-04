@@ -18,9 +18,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PatientEntity } from './entities/patient.entity';
+import { RoleProtected } from 'src/auth/decorator/role-protected.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('patients')
 @ApiTags('patients')
+@RoleProtected(Role.ADMIN, Role.DOCTOR)
 @ApiBearerAuth()
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
@@ -36,6 +39,7 @@ export class PatientsController {
   }
 
   @Get()
+  @RoleProtected(Role.ADMIN, Role.DOCTOR, Role.INTERN)
   @ApiOperation({
     summary: 'Obtener todos los pacientes',
     description: 'Obtener todos los pacientes de la clínica',
@@ -48,6 +52,7 @@ export class PatientsController {
   }
 
   @Get(':id')
+  @RoleProtected(Role.ADMIN, Role.DOCTOR, Role.INTERN)
   @ApiOperation({
     summary: 'Obtener un paciente',
     description: 'Obtener un paciente de la clínica',

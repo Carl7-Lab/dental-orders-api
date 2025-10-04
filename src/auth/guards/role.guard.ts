@@ -24,12 +24,12 @@ export class RoleGuard implements CanActivate {
 
     if (validRoles.length === 0) return true;
 
-    if (!user) throw new BadRequestException('Doctor no encontrado');
+    if (!user) throw new BadRequestException('Usuario no encontrado');
 
     if (validRoles.includes(user.role)) return true;
 
     throw new ForbiddenException(
-      `El Doctor ${user.name} necesita un rol válido: "${validRoles.join(', ')}"`,
+      `El usuario ${user.name} necesita un rol válido: "${validRoles.join(', ')}"`,
     );
   }
 }

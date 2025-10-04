@@ -21,9 +21,12 @@ import {
 } from '@nestjs/swagger';
 import { OrderEntity } from './entities/order.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { RoleProtected } from 'src/auth/decorator/role-protected.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('orders')
 @ApiTags('orders')
+@RoleProtected(Role.ADMIN, Role.DOCTOR)
 @ApiBearerAuth()
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
@@ -39,6 +42,7 @@ export class OrdersController {
   }
 
   @Get()
+  @RoleProtected(Role.ADMIN, Role.DOCTOR, Role.INTERN)
   @ApiOperation({
     summary: 'Obtener todas las órdenes',
     description:
@@ -109,6 +113,7 @@ export class OrdersController {
   }
 
   @Get(':id')
+  @RoleProtected(Role.ADMIN, Role.DOCTOR, Role.INTERN)
   @ApiOperation({
     summary: 'Obtener una orden',
     description: 'Obtener una orden específica por ID',

@@ -39,6 +39,7 @@ export class UsersController {
   }
 
   @Get()
+  @RoleProtected(Role.ADMIN, Role.DOCTOR, Role.INTERN)
   @ApiOperation({
     summary: 'Obtener todos los usuarios',
     description: 'Obtener todos los usuarios de la clínica',
@@ -51,6 +52,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @RoleProtected(Role.ADMIN, Role.DOCTOR, Role.INTERN)
   @ApiOperation({
     summary: 'Obtener un usuario',
     description: 'Obtener un usuario de la clínica',
