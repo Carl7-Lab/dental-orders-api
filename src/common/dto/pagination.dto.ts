@@ -1,27 +1,17 @@
-import { IsNumber, IsOptional, IsPositive, Min } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsInt, IsOptional, IsPositive, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class PaginationDto {
   @IsOptional()
-  @Transform(({ value }: { value: string | number }) => {
-    if (typeof value === 'string') {
-      return parseInt(value, 10);
-    }
-    return value;
-  })
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
   @IsPositive()
   @Min(1)
   limit?: number;
 
   @IsOptional()
-  @Transform(({ value }: { value: string | number }) => {
-    if (typeof value === 'string') {
-      return parseInt(value, 10);
-    }
-    return value;
-  })
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
   @IsPositive()
   @Min(1)
   page?: number;

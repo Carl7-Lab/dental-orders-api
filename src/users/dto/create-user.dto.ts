@@ -45,7 +45,7 @@ export class CreateUserDto {
 
   @IsNumberString()
   @IsOptional()
-  @Length(10, 10)
+  @Length(0, 10)
   @ApiProperty({
     description: 'El número de teléfono del usuario (10 dígitos)',
     example: '0991234567',

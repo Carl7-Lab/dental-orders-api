@@ -23,6 +23,8 @@ async function bootstrap(): Promise<void> {
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
+  app.enableCors();
+
   const config = new DocumentBuilder()
     .setTitle('Ordenes Dentales API')
     .setDescription(

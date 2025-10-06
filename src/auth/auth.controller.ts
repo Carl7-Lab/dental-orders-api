@@ -5,6 +5,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -24,6 +25,8 @@ import {
   Public,
 } from 'src/common/decorators';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { AccessTokenGuard } from './guards/access-token.guard';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -51,6 +54,19 @@ export class AuthController {
   @ApiOkResponse({ type: AuthEntity })
   signinLocal(@Body() dto: SigninDto): Promise<AuthEntity> {
     return this.authService.signinLocal(dto);
+  }
+
+  @Get('profile')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Obtener perfil del usuario',
+    description: 'Obtener perfil del usuario',
+  })
+  @ApiOkResponse({ type: UserEntity })
+  getProfile(@GetCurrentUser() user: UserEntity): UserEntity {
+    return user;
   }
 
   @Public()
