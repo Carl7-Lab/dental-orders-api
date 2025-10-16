@@ -23,6 +23,7 @@ import { OrderEntity } from './entities/order.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { RoleProtected } from 'src/auth/decorator/role-protected.decorator';
 import { Role } from '@prisma/client';
+import { GetCurrentUserId, GetCurrentUserRole } from 'src/common/decorators';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -79,6 +80,8 @@ export class OrdersController {
     @Query('userId') userId?: string,
     @Query('patientId') patientId?: string,
     @Query('status') status?: string,
+    @GetCurrentUserId() currentUserId?: number,
+    @GetCurrentUserRole() currentUserRole?: Role,
   ): Promise<{
     pagination: {
       total: number;
@@ -94,16 +97,29 @@ export class OrdersController {
       result = await this.ordersService.findByUser(
         parseInt(userId),
         paginationDto,
+        currentUserRole,
+        currentUserId,
       );
     } else if (patientId) {
       result = await this.ordersService.findByPatient(
         parseInt(patientId),
         paginationDto,
+        currentUserRole,
+        currentUserId,
       );
     } else if (status) {
-      result = await this.ordersService.findByStatus(status, paginationDto);
+      result = await this.ordersService.findByStatus(
+        status,
+        paginationDto,
+        currentUserRole,
+        currentUserId,
+      );
     } else {
-      result = await this.ordersService.findAll(paginationDto);
+      result = await this.ordersService.findAll(
+        paginationDto,
+        currentUserRole,
+        currentUserId,
+      );
     }
 
     return {
@@ -119,8 +135,14 @@ export class OrdersController {
     description: 'Obtener una orden específica por ID',
   })
   @ApiOkResponse({ type: OrderEntity })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<OrderEntity> {
-    return new OrderEntity(await this.ordersService.findOne(id));
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @GetCurrentUserId() currentUserId?: number,
+    @GetCurrentUserRole() currentUserRole?: Role,
+  ): Promise<OrderEntity> {
+    return new OrderEntity(
+      await this.ordersService.findOne(id, currentUserRole, currentUserId),
+    );
   }
 
   @Patch(':id')

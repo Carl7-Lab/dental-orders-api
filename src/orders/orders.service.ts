@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Order, User, Patient } from '@prisma/client';
+import { Order, User, Patient, Role } from '@prisma/client';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { getPaginationParams, getTotalPages } from 'src/common/utils';
 
@@ -76,17 +80,27 @@ export class OrdersService {
     });
   }
 
-  async findAll(pagination: PaginationDto): Promise<PaginatedOrders> {
+  async findAll(
+    pagination: PaginationDto,
+    userRole?: Role,
+    currentUserId?: number,
+  ): Promise<PaginatedOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
+
+    const whereClause =
+      userRole === Role.DOCTOR && currentUserId
+        ? { userId: currentUserId }
+        : {};
 
     const [data, total] = await Promise.all([
       this.prisma.order.findMany({
+        where: whereClause,
         include: this.getIncludeOptions(),
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      this.prisma.order.count(),
+      this.prisma.order.count({ where: whereClause }),
     ]);
 
     const totalPages = getTotalPages(total, limit);
@@ -102,7 +116,11 @@ export class OrdersService {
     };
   }
 
-  async findOne(id: number): Promise<OrderWithRelations> {
+  async findOne(
+    id: number,
+    userRole?: Role,
+    currentUserId?: number,
+  ): Promise<OrderWithRelations> {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: this.getIncludeOptions(),
@@ -112,14 +130,32 @@ export class OrdersService {
       throw new NotFoundException(`Orden con id "${id}" no encontrada`);
     }
 
+    if (
+      userRole === Role.DOCTOR &&
+      currentUserId &&
+      order.userId !== currentUserId
+    ) {
+      throw new ForbiddenException(
+        'No tienes permisos para acceder a esta orden',
+      );
+    }
+
     return order;
   }
 
   async findByUser(
     userId: number,
     pagination: PaginationDto,
+    userRole?: Role,
+    currentUserId?: number,
   ): Promise<PaginatedOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
+
+    if (userRole === Role.DOCTOR && currentUserId && userId !== currentUserId) {
+      throw new ForbiddenException(
+        'No tienes permisos para ver las órdenes de otros usuarios',
+      );
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.order.findMany({
@@ -148,18 +184,25 @@ export class OrdersService {
   async findByPatient(
     patientId: number,
     pagination: PaginationDto,
+    userRole?: Role,
+    currentUserId?: number,
   ): Promise<PaginatedOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
 
+    const whereClause =
+      userRole === Role.DOCTOR && currentUserId
+        ? { patientId, userId: currentUserId }
+        : { patientId };
+
     const [data, total] = await Promise.all([
       this.prisma.order.findMany({
-        where: { patientId },
+        where: whereClause,
         include: this.getIncludeOptions(),
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      this.prisma.order.count({ where: { patientId } }),
+      this.prisma.order.count({ where: whereClause }),
     ]);
 
     const totalPages = getTotalPages(total, limit);
@@ -178,11 +221,16 @@ export class OrdersService {
   async findByStatus(
     status: string,
     pagination: PaginationDto,
+    userRole?: Role,
+    currentUserId?: number,
   ): Promise<PaginatedOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
 
     const whereClause = {
       status: status as 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED',
+      ...(userRole === Role.DOCTOR && currentUserId
+        ? { userId: currentUserId }
+        : {}),
     };
 
     const [data, total] = await Promise.all([
