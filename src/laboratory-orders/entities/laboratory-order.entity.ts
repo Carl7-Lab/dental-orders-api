@@ -1,24 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Order, OrderType, OrderStatus, User, Patient } from '@prisma/client';
+import {
+  LaboratoryOrder,
+  OrderStatus,
+  User,
+  Patient,
+  Clinic,
+} from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
-export class OrderEntity implements Order {
-  constructor(partial: Partial<OrderEntity>) {
+export class LaboratoryOrderEntity implements LaboratoryOrder {
+  constructor(partial: Partial<LaboratoryOrderEntity>) {
     Object.assign(this, partial);
   }
 
   @ApiProperty({
-    description: 'El id de la orden',
+    description: 'El id de la orden de laboratorio',
     example: 1,
   })
   id: number;
-
-  @ApiProperty({
-    description: 'El tipo de orden',
-    enum: OrderType,
-    example: OrderType.RADIOGRAPHY,
-  })
-  orderType: OrderType;
 
   @ApiProperty({
     description: 'El estado de la orden',
@@ -46,6 +45,12 @@ export class OrderEntity implements Order {
   patientId: number;
 
   @ApiProperty({
+    description: 'El ID de la clínica',
+    example: 1,
+  })
+  clinicId: number;
+
+  @ApiProperty({
     description: 'Información del usuario',
     type: Object,
   })
@@ -56,6 +61,12 @@ export class OrderEntity implements Order {
     type: Object,
   })
   patient?: Omit<Patient, 'createdAt' | 'updatedAt'>;
+
+  @ApiProperty({
+    description: 'Información de la clínica',
+    type: Object,
+  })
+  clinic?: Omit<Clinic, 'createdAt' | 'updatedAt'>;
 
   @ApiProperty({
     description: 'La fecha de creación de la orden',

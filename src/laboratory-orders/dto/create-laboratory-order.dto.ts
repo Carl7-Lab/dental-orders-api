@@ -5,19 +5,11 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
 } from 'class-validator';
-import { OrderType, OrderStatus } from '@prisma/client';
+import { OrderStatus } from '@prisma/client';
 
-export class CreateOrderDto {
-  @IsEnum(OrderType)
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'El tipo de orden',
-    enum: OrderType,
-    example: OrderType.RADIOGRAPHY,
-  })
-  orderType: OrderType;
-
+export class CreateLaboratoryOrderDto {
   @IsEnum(OrderStatus)
   @IsOptional()
   @ApiProperty({
@@ -38,6 +30,7 @@ export class CreateOrderDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @IsPositive()
   @ApiProperty({
     description: 'El ID del usuario que crea la orden',
     example: 1,
@@ -46,9 +39,19 @@ export class CreateOrderDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @IsPositive()
   @ApiProperty({
     description: 'El ID del paciente para la orden',
     example: 1,
   })
   patientId: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @IsPositive()
+  @ApiProperty({
+    description: 'El ID de la clínica para la orden',
+    example: 1,
+  })
+  clinicId: number;
 }

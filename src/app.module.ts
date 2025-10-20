@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { PatientsModule } from './patients/patients.module';
-import { OrdersModule } from './orders/orders.module';
+import { ClinicsModule } from './clinics/clinics.module';
+import { ImagingOrdersModule } from './imaging-orders/imaging-orders.module';
+import { LaboratoryOrdersModule } from './laboratory-orders/laboratory-orders.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { EnvConfiguration } from './config/app.config';
@@ -20,7 +22,9 @@ import { AccessTokenGuard } from './auth/guards/access-token.guard';
     PrismaModule,
     UsersModule,
     PatientsModule,
-    OrdersModule,
+    ClinicsModule,
+    ImagingOrdersModule,
+    LaboratoryOrdersModule,
     AuthModule,
   ],
   providers: [

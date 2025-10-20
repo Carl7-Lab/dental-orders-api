@@ -17,8 +17,10 @@
     "prisma:reset": "prisma migrate reset --force",
     "seed:users": "ts-node prisma/seeds/users.seed.ts",
     "seed:patients": "ts-node prisma/seeds/patients.seed.ts",
-    "seed:orders": "ts-node prisma/seeds/orders.seed.ts",
-    "seed:all": "npm run prisma:reset && npm run seed:users && npm run seed:patients && npm run seed:orders",
+    "seed:clinics": "ts-node prisma/seeds/clinics.seed.ts",
+    "seed:imaging-orders": "ts-node prisma/seeds/imaging-orders.seed.ts",
+    "seed:laboratory-orders": "ts-node prisma/seeds/laboratory-orders.seed.ts",
+    "seed:all": "npm run prisma:reset && npm run seed:users && npm run seed:patients && npm run seed:clinics && npm run seed:imaging-orders && npm run seed:laboratory-orders",
     "db:migrate": "prisma migrate dev",
     "db:up": "docker compose up db -d"
   },

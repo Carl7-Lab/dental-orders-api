@@ -3,29 +3,30 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { CreateOrderDto, UpdateOrderDto } from './dto';
+import { CreateLaboratoryOrderDto, UpdateLaboratoryOrderDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Order, User, Patient, Role } from '@prisma/client';
+import { LaboratoryOrder, User, Patient, Clinic, Role } from '@prisma/client';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { getPaginationParams, getTotalPages } from 'src/common/utils';
 
-export type OrderWithRelations = Order & {
+export type LaboratoryOrderWithRelations = LaboratoryOrder & {
   user: Omit<User, 'createdAt' | 'updatedAt' | 'isActive' | 'password'>;
   patient: Omit<Patient, 'createdAt' | 'updatedAt'>;
+  clinic: Omit<Clinic, 'createdAt' | 'updatedAt'>;
 };
 
-export type PaginatedOrders = {
+export type PaginatedLaboratoryOrders = {
   pagination: {
     total: number;
     page: number;
     limit: number;
     totalPages: number;
   };
-  data: OrderWithRelations[];
+  data: LaboratoryOrderWithRelations[];
 };
 
 @Injectable()
-export class OrdersService {
+export class LaboratoryOrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -33,6 +34,7 @@ export class OrdersService {
     return {
       userId: false,
       patientId: false,
+      clinicId: false,
       user: {
         select: {
           id: true,
@@ -53,10 +55,19 @@ export class OrdersService {
           notes: true,
         },
       },
+      clinic: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
+          phone: true,
+          email: true,
+        },
+      },
     } as const;
   }
 
-  async create(dto: CreateOrderDto): Promise<Order> {
+  async create(dto: CreateLaboratoryOrderDto): Promise<LaboratoryOrder> {
     const user = await this.prisma.user.findUnique({
       where: { id: dto.userId },
     });
@@ -75,7 +86,16 @@ export class OrdersService {
       );
     }
 
-    return await this.prisma.order.create({
+    const clinic = await this.prisma.clinic.findUnique({
+      where: { id: dto.clinicId },
+    });
+    if (!clinic) {
+      throw new NotFoundException(
+        `Clínica con id "${dto.clinicId}" no encontrada`,
+      );
+    }
+
+    return await this.prisma.laboratoryOrder.create({
       data: dto,
     });
   }
@@ -84,7 +104,7 @@ export class OrdersService {
     pagination: PaginationDto,
     userRole?: Role,
     currentUserId?: number,
-  ): Promise<PaginatedOrders> {
+  ): Promise<PaginatedLaboratoryOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
 
     const whereClause =
@@ -93,14 +113,14 @@ export class OrdersService {
         : {};
 
     const [data, total] = await Promise.all([
-      this.prisma.order.findMany({
+      this.prisma.laboratoryOrder.findMany({
         where: whereClause,
         include: this.getIncludeOptions(),
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      this.prisma.order.count({ where: whereClause }),
+      this.prisma.laboratoryOrder.count({ where: whereClause }),
     ]);
 
     const totalPages = getTotalPages(total, limit);
@@ -120,14 +140,16 @@ export class OrdersService {
     id: number,
     userRole?: Role,
     currentUserId?: number,
-  ): Promise<OrderWithRelations> {
-    const order = await this.prisma.order.findUnique({
+  ): Promise<LaboratoryOrderWithRelations> {
+    const order = await this.prisma.laboratoryOrder.findUnique({
       where: { id },
       include: this.getIncludeOptions(),
     });
 
     if (!order) {
-      throw new NotFoundException(`Orden con id "${id}" no encontrada`);
+      throw new NotFoundException(
+        `Orden de laboratorio con id "${id}" no encontrada`,
+      );
     }
 
     if (
@@ -136,7 +158,7 @@ export class OrdersService {
       order.userId !== currentUserId
     ) {
       throw new ForbiddenException(
-        'No tienes permisos para acceder a esta orden',
+        'No tienes permisos para acceder a esta orden de laboratorio',
       );
     }
 
@@ -148,24 +170,24 @@ export class OrdersService {
     pagination: PaginationDto,
     userRole?: Role,
     currentUserId?: number,
-  ): Promise<PaginatedOrders> {
+  ): Promise<PaginatedLaboratoryOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
 
     if (userRole === Role.DOCTOR && currentUserId && userId !== currentUserId) {
       throw new ForbiddenException(
-        'No tienes permisos para ver las órdenes de otros usuarios',
+        'No tienes permisos para ver las órdenes de laboratorio de otros usuarios',
       );
     }
 
     const [data, total] = await Promise.all([
-      this.prisma.order.findMany({
+      this.prisma.laboratoryOrder.findMany({
         where: { userId },
         include: this.getIncludeOptions(),
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      this.prisma.order.count({ where: { userId } }),
+      this.prisma.laboratoryOrder.count({ where: { userId } }),
     ]);
 
     const totalPages = getTotalPages(total, limit);
@@ -186,7 +208,7 @@ export class OrdersService {
     pagination: PaginationDto,
     userRole?: Role,
     currentUserId?: number,
-  ): Promise<PaginatedOrders> {
+  ): Promise<PaginatedLaboratoryOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
 
     const whereClause =
@@ -195,14 +217,14 @@ export class OrdersService {
         : { patientId };
 
     const [data, total] = await Promise.all([
-      this.prisma.order.findMany({
+      this.prisma.laboratoryOrder.findMany({
         where: whereClause,
         include: this.getIncludeOptions(),
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      this.prisma.order.count({ where: whereClause }),
+      this.prisma.laboratoryOrder.count({ where: whereClause }),
     ]);
 
     const totalPages = getTotalPages(total, limit);
@@ -223,7 +245,7 @@ export class OrdersService {
     pagination: PaginationDto,
     userRole?: Role,
     currentUserId?: number,
-  ): Promise<PaginatedOrders> {
+  ): Promise<PaginatedLaboratoryOrders> {
     const { page, limit, skip } = getPaginationParams(pagination);
 
     const whereClause = {
@@ -234,14 +256,14 @@ export class OrdersService {
     };
 
     const [data, total] = await Promise.all([
-      this.prisma.order.findMany({
+      this.prisma.laboratoryOrder.findMany({
         where: whereClause,
         include: this.getIncludeOptions(),
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      this.prisma.order.count({ where: whereClause }),
+      this.prisma.laboratoryOrder.count({ where: whereClause }),
     ]);
 
     const totalPages = getTotalPages(total, limit);
@@ -257,7 +279,10 @@ export class OrdersService {
     };
   }
 
-  async update(id: number, dto: UpdateOrderDto): Promise<OrderWithRelations> {
+  async update(
+    id: number,
+    dto: UpdateLaboratoryOrderDto,
+  ): Promise<LaboratoryOrderWithRelations> {
     await this.findOne(id);
 
     if (dto.userId) {
@@ -282,17 +307,28 @@ export class OrdersService {
       }
     }
 
-    return await this.prisma.order.update({
+    if (dto.clinicId) {
+      const clinic = await this.prisma.clinic.findUnique({
+        where: { id: dto.clinicId },
+      });
+      if (!clinic) {
+        throw new NotFoundException(
+          `Clínica con id "${dto.clinicId}" no encontrada`,
+        );
+      }
+    }
+
+    return await this.prisma.laboratoryOrder.update({
       where: { id },
       data: dto,
       include: this.getIncludeOptions(),
     });
   }
 
-  async remove(id: number): Promise<OrderWithRelations> {
+  async remove(id: number): Promise<LaboratoryOrderWithRelations> {
     await this.findOne(id);
 
-    return await this.prisma.order.delete({
+    return await this.prisma.laboratoryOrder.delete({
       where: { id },
       include: this.getIncludeOptions(),
     });

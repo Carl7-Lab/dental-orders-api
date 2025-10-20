@@ -21,11 +21,6 @@ enum Role {
   INTERN
 }
 
-enum OrderType {
-  RADIOGRAPHY
-  LABORATORY
-}
-
 enum OrderStatus {
   PENDING
   IN_PROGRESS
@@ -33,55 +28,154 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum RadiographService {
+  PANORAMIC_MAXILLARY
+  LATERAL_SKULL
+  PERIAPICAL_TOMOGRAPHIC
+  BITE_WING
+  LATERAL_NASAL_SINUSES
+  TMJ_MOUTH_OPEN_CLOSED
+  TMJ_MOUTH_OPEN
+  TMJ_MOUTH_CLOSED
+  ANTEROPOSTERIOR_FRONTAL
+  POSTEROANTERIOR_FRONTAL
+  CARPAL
+}
+
+enum ComplementaryService {
+  BIMAXILLAR_WITH_OCCLUSION
+  MAXILLAR_SUPERIOR
+  MAXILLAR_INFERIOR
+  BIMAXILLAR_MODELS
+  MAXILLAR_MODELS_SUPERIOR
+  MAXILLAR_MODELS_INFERIOR
+}
+
+enum TomographyService {
+  BIMAXILLAR_WITH_ATM_16X12
+  MAXILLAR_SUPERIOR_8X5
+  MAXILLAR_SUPERIOR_10X5
+  MAXILLAR_SUPERIOR_12X5
+  MAXILLAR_INFERIOR_8X5
+  MAXILLAR_INFERIOR_10X5
+  MAXILLAR_INFERIOR_12X5
+  BIMAXILLAR_8X8
+  BIMAXILLAR_10X10
+  BIMAXILLAR_12X10
+  BIMAXILLAR_16X10
+  ENDODONTIC_4X4
+  ENDODONTIC_5X5
+  MAXILLOFACIAL_16X17
+  PARANASAL_SINUSES
+  TMJ_MOUTH_OPEN_CLOSED
+  TMJ_MOUTH_OPEN
+  TMJ_MOUTH_CLOSED
+  SCAN_FACE
+}
+
+enum OrthodonticPackage {
+  BASIC_RADIOGRAPHIC
+  CONVENTIONAL
+  COMPLETE
+  COMPLETE_SPECIAL_PHOTOS
+}
+
+enum IndividualOrthodonticStudy {
+  CEPHALOMETRY
+  BASIC_ORTHODONTIC_PHOTOS_9
+  SPECIAL_ORTHODONTIC_PHOTOS_18
+  STUDY_MODELS_3D
+  SCAN_3D
+}
+
 // Models
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  phone     String?
-  address   String?
-  role      Role     @default(DOCTOR)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
-
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  password      String
+  phone         String?
+  address       String?
+  role          Role           @default(DOCTOR)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  imagingOrders ImagingOrder[]
+  laboratoryOrders LaboratoryOrder[]
+  
   @@map("users")
 }
 
+model Clinic {
+  id            Int            @id @default(autoincrement())
+  name          String
+  address       String?
+  phone         String?
+  email         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  imagingOrders ImagingOrder[]
+  laboratoryOrders LaboratoryOrder[]
+
+  @@map("clinics")
+}
+
 model Patient {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String?
-  phone     String?
-  address   String?
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String?
+  phone         String?
+  address       String?
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  imagingOrders ImagingOrder[]
+  laboratoryOrders LaboratoryOrder[]
 
   @@map("patients")
 }
 
-model Order {
-  id        Int         @id @default(autoincrement())
-  orderType OrderType
-  status    OrderStatus @default(PENDING)
-  orderDate DateTime
+model ImagingOrder {
+  id                         Int                         @id @default(autoincrement())
+  status                     OrderStatus                 @default(PENDING)
+  orderDate                  DateTime
+  radiographService          RadiographService? 
+  complementaryService       ComplementaryService? 
+  tomographyService          TomographyService? 
+  orthodonticPackage         OrthodonticPackage? 
+  individualOrthodonticStudy IndividualOrthodonticStudy? 
+  reportRequired             Boolean                     @default(false)
+  studyObjective             String?
+  observations               String?
+  toothNumber                String? 
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
 
   // Relaciones
   user      User    @relation(fields: [userId], references: [id])
   userId    Int
   patient   Patient @relation(fields: [patientId], references: [id])
   patientId Int
+  clinic    Clinic @relation(fields: [clinicId], references: [id])
+  clinicId  Int
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@map("imaging_orders")
+}
 
-  @@index([userId])
-  @@index([patientId])
-  @@index([status])
-  @@index([orderType])
-  @@map("orders")
+model LaboratoryOrder {
+  id            Int            @id @default(autoincrement())
+  status        OrderStatus    @default(PENDING)
+  orderDate     DateTime
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relaciones
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int
+  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId Int
+  clinic    Clinic @relation(fields: [clinicId], references: [id])
+  clinicId  Int
+
+  @@map("laboratory_orders")
 }
