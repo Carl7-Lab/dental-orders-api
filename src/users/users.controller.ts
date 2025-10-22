@@ -7,19 +7,22 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { PaginatedUsers, UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
 import { RoleProtected } from 'src/auth/decorator/role-protected.decorator';
 import { Role } from '@prisma/client';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -45,10 +48,32 @@ export class UsersController {
     description: 'Obtener todos los usuarios de la clínica',
   })
   @ApiOkResponse({ type: UserEntity, isArray: true })
-  async findAll(): Promise<UserEntity[]> {
-    return (await this.usersService.findAll()).map(
-      (user) => new UserEntity(user),
-    );
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Número de página (por defecto: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Número de elementos por página (por defecto: 10)',
+  })
+  async findAll(@Query() paginationDto: PaginationDto): Promise<{
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+    data: UserEntity[];
+  }> {
+    const result: PaginatedUsers =
+      await this.usersService.findAll(paginationDto);
+
+    return {
+      pagination: result.pagination,
+      data: result.data.map((user) => new UserEntity(user)),
+    };
   }
 
   @Get(':id')

@@ -7,19 +7,22 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
-import { PatientsService } from './patients.service';
+import { PaginatedPatients, PatientsService } from './patients.service';
 import { CreatePatientDto, UpdatePatientDto } from './dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { PatientEntity } from './entities/patient.entity';
 import { RoleProtected } from 'src/auth/decorator/role-protected.decorator';
 import { Role } from '@prisma/client';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('patients')
 @ApiTags('patients')
@@ -45,10 +48,32 @@ export class PatientsController {
     description: 'Obtener todos los pacientes de la clínica',
   })
   @ApiOkResponse({ type: PatientEntity, isArray: true })
-  async findAll(): Promise<PatientEntity[]> {
-    return (await this.patientsService.findAll()).map(
-      (patient) => new PatientEntity(patient),
-    );
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Número de página (por defecto: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Número de elementos por página (por defecto: 10)',
+  })
+  async findAll(@Query() paginationDto: PaginationDto): Promise<{
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+    data: PatientEntity[];
+  }> {
+    const result: PaginatedPatients =
+      await this.patientsService.findAll(paginationDto);
+
+    return {
+      pagination: result.pagination,
+      data: result.data.map((patient) => new PatientEntity(patient)),
+    };
   }
 
   @Get(':id')

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
+  IsEmpty,
   IsEnum,
   IsNotEmpty,
   IsNumberString,
@@ -45,6 +46,7 @@ export class CreateUserDto {
 
   @IsNumberString()
   @IsOptional()
+  @IsEmpty()
   @Length(0, 10)
   @ApiProperty({
     description: 'El número de teléfono del usuario (10 dígitos)',
